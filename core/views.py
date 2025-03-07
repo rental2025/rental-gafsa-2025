@@ -13,17 +13,12 @@ from core.models import User  # Importe ton modèle personnalisé
 def run_migrations_and_superuser(request):
     # Exécute les migrations
     call_command('migrate')
-    
-    # Crée un superutilisateur programmatiquement
-    try:
-        User.objects.get(username='souheil')
-    except User.DoesNotExist:
-        User.objects.create_superuser(
-            username='souheil',
-            email='souheil@example.com',
-            password='Souheil2025!'  # Mot de passe sécurisé
-        )
-    
+    # Crée le superutilisateur sans vérification
+    User.objects.create_superuser(
+        username='souheil',
+        email='souheil@example.com',
+        password='Souheil2025!'
+    )
     return HttpResponse("Migrations et superutilisateur créés !")
 
 def reservation_create(request):
