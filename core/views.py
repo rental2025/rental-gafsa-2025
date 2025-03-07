@@ -10,15 +10,22 @@ from django.core.management import call_command
 import os
 from core.models import User  # Importe ton modèle personnalisé
 
+from django.http import HttpResponse
+from django.core.management import call_command
+from core.models import User
+
 def run_migrations_and_superuser(request):
     # Exécute les migrations
     call_command('migrate')
-    # Crée le superutilisateur sans vérification
-    User.objects.create_superuser(
-        username='souheil',
-        email='souheil@example.com',
-        password='Souheil2025!'
-    )
+    # Crée le superutilisateur si nécessaire
+    try:
+        User.objects.get(username='souheil')
+    except User.DoesNotExist:
+        User.objects.create_superuser(
+            username='souheil',
+            email='souheil@example.com',
+            password='Souheil2025!'
+        )
     return HttpResponse("Migrations et superutilisateur créés !")
 
 def reservation_create(request):
