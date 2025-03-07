@@ -1,0 +1,122 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{% endblock %}
+{% block hide_nav %}true{% endblock %}
+
+{% block content %}
+<div class="order-container" id="order-print">
+    <div class="header">
+        <img src="{% static 'images/srtg_logo.png' %}" alt="Logo SRTG" class="logo">
+        <h1>بطاقة النقل</h1>
+        <p>المقر الاجتماعي: شارع الحبيب بورقيبة - قفصة</p>
+    </div>
+
+    <div class="transport-order-content">
+        <table class="ref-table">
+            <tr>
+                <td>رقم بطاقة النقل: TR/{{ trip.id }}/2025</td>
+                <td>تاريخ الإصدار: {{ trip.reservation.start_date }}</td>
+            </tr>
+        </table>
+
+        <div class="section">
+            <h2 class="section-title">تفاصيل الرحلة</h2>
+            <div class="details">
+                <p>نقطة الانطلاق: {{ trip.reservation.departure }}</p>
+                <p>نقطة الوصول: {{ trip.reservation.destination.destination }}</p>
+                <p>تاريخ الذهاب: {{ trip.reservation.start_date }}</p>
+                <p>تاريخ العودة: {{ trip.reservation.end_date }}</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">تعيين السائق والحافلة</h2>
+            <div class="details">
+                <p>اسم السائق: {{ trip.driver.name }}</p>
+                <p>رخصة السائق: {{ trip.driver.matricule }}</p>
+                <p>رقم الحافلة: {{ trip.bus.matricule }}</p>
+                <p>حجم الحافلة: {{ trip.bus.capacity }} مقعد</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p class="footer-text">الشركة الجهوية للنقل بقفصة © 2025 | هاتف: 1234-5678 | بريد إلكتروني: contact@srtg.tn</p>
+    </div>
+
+    <button class="print-btn" onclick="printOrder()">طباعة</button>
+</div>
+
+<style>
+    /* Style pour l’affichage à l’écran */
+    .order-container { 
+        border: 2px solid #1a3c34; 
+        padding: 20px; 
+        margin: 20px auto; 
+        max-width: 900px; 
+        width: 100%; 
+        box-sizing: border-box; 
+    }
+    .header { 
+        background-color: #1a3c34; 
+        color: #fff; 
+        padding: 15px; 
+        text-align: center; 
+    }
+    .header img.logo { width: 100px; }
+    .header h1 { margin: 10px 0; font-size: 24px; }
+    .header p { margin: 5px 0; font-size: 14px; }
+    .footer { 
+        background-color: #1a3c34; 
+        color: #fff; 
+        padding: 15px; 
+        text-align: center; 
+    }
+    .footer-text { 
+        margin: 0; 
+        font-size: 14px; 
+    }
+    .print-btn {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        background-color: #1a3c34;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .print-btn:hover {
+        background-color: #f4a261;
+    }
+
+    /* Style pour l’impression */
+    @media print {
+        /* Masquer tout sauf le conteneur spécifique */
+        body { margin: 0; padding: 0; background: none; }
+        * { visibility: hidden; }
+        #order-print, #order-print * { 
+            visibility: visible; 
+        }
+        #order-print { 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            max-width: none; 
+            margin: 0; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            border: 2px solid #1a3c34; 
+        }
+        .print-btn { display: none; }
+    }
+</style>
+
+<script>
+    function printOrder() {
+        window.print();
+    }
+</script>
+{% endblock %}

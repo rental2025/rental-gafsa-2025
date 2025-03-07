@@ -1,0 +1,59 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}إحصاءات{% endblock %}
+
+{% block content %}
+<div class="statistics">
+    <h1>إحصاءات النظام</h1>
+    <div class="section">
+        <h2>البيانات العامة</h2>
+        <p>إجمالي الحجوزات: {{ total_reservations }}</p>
+        <p>إجمالي السائقين: {{ total_drivers }}</p>
+        <p>إجمالي الحافلات: {{ total_buses }}</p>
+        <p>السائقين المتاحين: {{ available_drivers }}</p>
+        <p>الحافلات المتاحة: {{ available_buses }}</p>
+    </div>
+    <div class="section">
+        <h2>الحجوزات حسب الحالة</h2>
+        <ul>
+        {% for status in reservations_by_status %}
+            <li>{{ status.status }}: {{ status.count }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    <div class="section">
+        <h2>الحجوزات حسب الشهر</h2>
+        <canvas id="reservationsChart" width="400" height="200"></canvas>
+    </div>
+    <script id="monthlyData" type="application/json">
+        {{ monthly_data|json_script:"monthlyData" }}
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var monthlyData = JSON.parse(document.getElementById('monthlyData').textContent);
+        var ctx = document.getElementById('reservationsChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+                datasets: [{
+                    label: 'عدد الحجوزات',
+                    data: monthlyData,
+                    backgroundColor: 'rgba(26, 60, 52, 0.2)',
+                    borderColor: '#1a3c34',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+    </script>
+</div>
+{% endblock %}

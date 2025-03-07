@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+
+{% block title %}تأكيد الحجز{% endblock %}
+
+{% block content %}
+<div class="confirm-reservation-content">
+    <h1>تأكيد الحجز</h1>
+    <form method="post">
+        {% csrf_token %}
+        <p>هل تريد تأكيد الحجز {{ reservation.reference }}؟</p>
+        <button type="submit" class="btn">تأكيد</button>
+    </form>
+</div>
+{% endblock %}

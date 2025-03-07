@@ -1,0 +1,281 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}لوحة التحكم{% endblock %}
+
+{% block content %}
+<div class="dashboard-content">
+    <h1>لوحة التحكم</h1>
+
+    <!-- Section des notifications -->
+    <div class="notifications">
+        {% if user.role == "Superviseur" and pending_count > 0 %}
+        <p class="notification">لديك {{ pending_count }} حجوزات جديدة للاستشارة</p>
+        {% elif user.role == "Exploitant" and paid_count > 0 %}
+        <p class="notification">لديك {{ paid_count }} حجوزات مدفوعة للتأكيد</p>
+        {% elif user.role == "Caissier" and unpaid_count > 0 %}
+        <p class="notification">لديك {{ unpaid_count }} حجوزات جديدة للدفع</p>
+        {% elif user.role == "PDG" and pending_pdg_count > 0 %}
+        <p class="notification">لديك {{ pending_pdg_count }} حجوزات للتأكيد</p>
+        {% endif %}
+    </div>
+
+    {% if user.role == "Superviseur" %}
+    <div class="section">
+        <h2 class="section-title">إحصاءات النظام</h2>
+        <p>إجمالي الحجوزات: {{ total_reservations }}</p>
+        <p>إجمالي السائقين: {{ total_drivers }}</p>
+        <p>إجمالي الحافلات: {{ total_buses }}</p>
+        <p>السائقين المتاحين: {{ available_drivers }}</p>
+        <p>الحافلات المتاحة: {{ available_buses }}</p>
+    </div>
+    <div class="section">
+        <h2 class="section-title">الحجوزات حسب الحالة</h2>
+        <ul>
+        {% for status in reservations_by_status %}
+            <li>{{ status.status }}: {{ status.count }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    <div class="section">
+        <h2 class="section-title">الحجوزات حسب الشهر</h2>
+        <canvas id="reservationsChart" width="400" height="200"></canvas>
+    </div>
+    <div class="section">
+        <h2 class="section-title">سجل الحجوزات</h2>
+        <table class="reservation-table">
+            <thead>
+                <tr>
+                    <th>الرقم</th>
+                    <th>الحريف</th>
+                    <th>الوجهة</th>
+                    <th>تاريخ الذهاب</th>
+                    <th>تاريخ العودة</th>
+                    <th>الحالة</th>
+                    <th>الثمن الجملي</th>
+                    <th>تفاصيل</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for reservation in all_reservations %}
+                <tr>
+                    <td><a href="{% url 'reservation_detail' reservation.id %}">{{ reservation.reference }}</a></td>
+                    <td>{{ reservation.client.name }}</td>
+                    <td>{{ reservation.destination.destination }}</td>
+                    <td>{{ reservation.start_date }}</td>
+                    <td>{{ reservation.end_date }}</td>
+                    <td>{{ reservation.status }}</td>
+                    <td>{{ reservation.total_price|floatformat:2 }}</td>
+                    <td><a href="{% url 'reservation_detail' reservation.id %}" class="btn">عرض</a></td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8">لا توجد حجوزات</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script id="monthlyData" type="application/json">
+        {{ monthly_data|json_script:"monthlyData" }}
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var monthlyData = JSON.parse(document.getElementById('monthlyData').textContent);
+        var ctx = document.getElementById('reservationsChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"],
+                datasets: [{
+                    label: 'عدد الحجوزات',
+                    data: monthly_data,
+                    backgroundColor: 'rgba(26, 60, 52, 0.2)',
+                    borderColor: '#1a3c34',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+    </script>
+    {% elif user.role == "Exploitant" %}
+    <div class="section">
+        <h2 class="section-title">الحجوزات المدفوعة في انتظار التنفيذ</h2>
+        <table class="reservation-table">
+            <thead>
+                <tr>
+                    <th>الرقم</th>
+                    <th>الحريف</th>
+                    <th>الوجهة</th>
+                    <th>الثمن الجملي</th>
+                    <th>إضافة رحلة</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for reservation in paid_reservations %}
+                <tr>
+                    <td><a href="{% url 'reservation_detail' reservation.id %}">{{ reservation.reference }}</a></td>
+                    <td>{{ reservation.client.name }}</td>
+                    <td>{{ reservation.destination.destination }}</td>
+                    <td>{{ reservation.total_price|floatformat:2 }}</td>
+                    <td><a href="{% url 'create_trip' reservation.id %}" class="btn">إضافة</a></td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">لا توجد حجوزات مدفوعة</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% elif user.role == "Caissier" %}
+    <div class="section">
+        <h2 class="section-title">الحجوزات الغير مدفوعة</h2>
+        <table class="reservation-table">
+            <thead>
+                <tr>
+                    <th>الرقم</th>
+                    <th>الحريف</th>
+                    <th>الوجهة</th>
+                    <th>الثمن الجملي</th>
+                    <th>تأكيد الدفع</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for reservation in unpaid_reservations %}
+                <tr>
+                    <td><a href="{% url 'reservation_detail' reservation.id %}">{{ reservation.reference }}</a></td>
+                    <td>{{ reservation.client.name }}</td>
+                    <td>{{ reservation.destination.destination }}</td>
+                    <td>{{ reservation.total_price|floatformat:2 }}</td>
+                    <td><a href="{% url 'confirm_payment' reservation.id %}" class="btn">تأكيد</a></td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">لا توجد حجوزات غير مدفوعة</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="section">
+        <h2 class="section-title">سجل الدفعات المؤكدة</h2>
+        <table class="reservation-table">
+            <thead>
+                <tr>
+                    <th>الرقم</th>
+                    <th>الحريف</th>
+                    <th>الوجهة</th>
+                    <th>الثمن الجملي</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for reservation in paid_reservations %}
+                <tr>
+                    <td><a href="{% url 'reservation_detail' reservation.id %}">{{ reservation.reference }}</a></td>
+                    <td>{{ reservation.client.name }}</td>
+                    <td>{{ reservation.destination.destination }}</td>
+                    <td>{{ reservation.total_price|floatformat:2 }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">لا توجد دفعات مؤكدة</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% elif user.role == "PDG" %}
+    <div class="section">
+        <h2 class="section-title">الحجوزات في انتظار تأكيد المدير العام</h2>
+        <table class="reservation-table">
+            <thead>
+                <tr>
+                    <th>الرقم</th>
+                    <th>الحريف</th>
+                    <th>الوجهة</th>
+                    <th>الثمن الجملي</th>
+                    <th>تعديل الخصم</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for reservation in pending_pdg_reservations %}
+                <tr>
+                    <td><a href="{% url 'reservation_detail' reservation.id %}">{{ reservation.reference }}</a></td>
+                    <td>{{ reservation.client.name }}</td>
+                    <td>{{ reservation.destination.destination }}</td>
+                    <td>{{ reservation.total_price|floatformat:2 }}</td>
+                    <td><a href="{% url 'apply_discount' reservation.id %}" class="btn">تعديل</a></td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="5">لا توجد حجوزات في انتظار التأكيد</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="section">
+        <h2 class="section-title">سجل الحجوزات المؤكدة</h2>
+        <table class="reservation-table">
+            <thead>
+                <tr>
+                    <th>الرقم</th>
+                    <th>الحريف</th>
+                    <th>الوجهة</th>
+                    <th>الثمن الجملي</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for reservation in confirmed_reservations %}
+                <tr>
+                    <td><a href="{% url 'reservation_detail' reservation.id %}">{{ reservation.reference }}</a></td>
+                    <td>{{ reservation.client.name }}</td>
+                    <td>{{ reservation.destination.destination }}</td>
+                    <td>{{ reservation.total_price|floatformat:2 }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">لا توجد حجوزات مؤكدة</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="section">
+        <h2 class="section-title">مرحبا، {{ user.username }}</h2>
+        <p>{{ message }}</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .notifications {
+        margin: 20px 0;
+        text-align: center;
+    }
+    .notification {
+        background-color: #e6ffe6;
+        color: #1a3c34;
+        padding: 10px;
+        border-radius: 5px;
+        font-weight: bold;
+        display: inline-block;
+    }
+    .reservation-table a {
+        color: #1a3c34;
+        text-decoration: none;
+    }
+    .reservation-table a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}

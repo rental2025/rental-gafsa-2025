@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+
+{% block title %}تسجيل الدخول{% endblock %}
+
+{% block content %}
+<div class="login-content">
+    <h1>تسجيل الدخول</h1>
+    <form method="post" class="reservation-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">دخول</button>
+    </form>
+</div>
+{% endblock %}

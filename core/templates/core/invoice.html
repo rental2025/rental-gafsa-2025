@@ -1,0 +1,207 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{% endblock %}
+{% block hide_nav %}true{% endblock %}
+
+{% block content %}
+<div class="invoice-container" id="invoice-print">
+    <div class="header">
+        <img src="{% static 'images/srtg_logo.png' %}" alt="Logo SRTG" class="logo">
+        <h1>فاتورة تقديرية</h1>
+        <p>المقر الاجتماعي: شارع الحبيب بورقيبة - قفصة</p>
+    </div>
+
+    <div class="invoice-content">
+        <table class="ref-table">
+            <tr>
+                <td>رقم الحجز: {{ reservation.reference }}</td>
+                <td>تاريخ الإصدار: {{ reservation.start_date }}</td>
+            </tr>
+        </table>
+
+        <div class="section">
+            <h2 class="section-title">بيانات الحريف</h2>
+            <div class="details">
+                <p>اسم الحريف: {{ reservation.client.name }}</p>
+                <p>طبيعة الحريف: {{ reservation.client.get_client_type_display }}</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">تفاصيل الخدمة</h2>
+            <div class="details">
+                <p>نقطة الانطلاق: {{ reservation.departure }}</p>
+                <p>نقطة الوصول: {{ reservation.destination.destination }}</p>
+                <p>المسافة: {{ reservation.destination.distance_km }} كلم</p>
+                <p>تاريخ الذهاب: {{ reservation.start_date }}</p>
+                <p>تاريخ العودة: {{ reservation.end_date }}</p>
+                <p>عدد الأيام: {{ reservation.days }} أيام</p>
+                {% if reservation.client.client_type == 'sport_supported' %}
+                <p>عدد ساعات الانتظار: {{ reservation.calculate_waiting_hours }} ساعات</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="section">
+            <h2 class="section-title">تفاصيل التسعيرة</h2>
+            <table class="calculation-table">
+                <tr>
+                    <th>البيان</th>
+                    <th>المبلغ (دينار)</th>
+                </tr>
+                <tr>
+                    <td>تسعيرة الكيلومتر ({{ reservation.unit_price|floatformat:2 }} × {{ reservation.destination.distance_km }})</td>
+                    <td>{{ reservation.calculate_km_price|floatformat:2 }}</td>
+                </tr>
+                {% if reservation.client.client_type == 'sport_supported' %}
+                <tr>
+                    <td>تكلفة ساعات الانتظار ({{ reservation.calculate_waiting_hours }} ساعات × 30 د.ت)</td>
+                    <td>{{ reservation.calculate_waiting_price|floatformat:2 }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td>تسعيرة اليوم ({{ reservation.daily_price|floatformat:2 }} × {{ reservation.days }})</td>
+                    <td>{{ reservation.calculate_daily_price|floatformat:2 }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td>الجملة قبل الضريبة</td>
+                    <td>{{ reservation.calculate_base_price|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>الخصم ({{ reservation.discount|floatformat:2 }}%)</td>
+                    <td>{{ reservation.calculate_discount_amount|floatformat:2 }}</td>
+                </tr>
+                {% if reservation.client.client_type == 'sport_supported' %}
+                <tr>
+                    <td>حصة الحريف بدون الأداء</td>
+                    <td>{{ reservation.client_share_before_tax|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>حصة المندوبية بدون الأداء</td>
+                    <td>{{ reservation.ministry_share_before_tax|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>الأداء (7%) الحريف</td>
+                    <td>{{ reservation.client_tax|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>الأداء (7%) المندوبية</td>
+                    <td>{{ reservation.ministry_tax|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>حصة الحريف بالأداء مع الطابع</td>
+                    <td>{{ reservation.client_share|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td>حصة المندوبية بالأداء</td>
+                    <td>{{ reservation.ministry_share|floatformat:2 }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td>الأداء (7%)</td>
+                    <td>{{ reservation.calculate_tax_amount|floatformat:2 }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                    <td>الطابع الجبائي</td>
+                    <td>{{ reservation.stamp_duty|floatformat:2 }}</td>
+                </tr>
+            </table>
+            {% if reservation.discount > 20 and not reservation.is_discount_approved %}
+            <p style="color: red; text-align: center;">الخصم في انتظار موافقة المدير العام</p>
+            {% endif %}
+        </div>
+
+        <div class="total">
+            {% if reservation.client.client_type == 'sport_supported' %}
+            الثمن الجملي النهائي للحريف: {{ reservation.client_share|floatformat:2 }} دينار تونسي
+            <br>الثمن الجملي النهائي للمندوبية: {{ reservation.ministry_share|floatformat:2 }} دينار تونسي
+            <br>الثمن الجملي الإجمالي: {{ reservation.total_price|floatformat:2 }} دينار تونسي
+            {% else %}
+            الثمن الجملي النهائي: {{ reservation.total_price|floatformat:2 }} دينار تونسي
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="footer">
+        <p class="footer-text">الشركة الجهوية للنقل بقفصة © 2025 | هاتف: 1234-5678 | بريد إلكتروني: contact@srtg.tn</p>
+    </div>
+
+    <button class="print-btn" onclick="printInvoice()">طباعة</button>
+</div>
+
+<style>
+    .invoice-container { 
+        border: 2px solid #1a3c34; 
+        padding: 20px; 
+        margin: 20px auto; 
+        max-width: 900px; 
+        width: 100%; 
+        box-sizing: border-box; 
+    }
+    .header { 
+        background-color: #1a3c34; 
+        color: #fff; 
+        padding: 15px; 
+        text-align: center; 
+    }
+    .header img.logo { width: 100px; }
+    .header h1 { margin: 10px 0; font-size: 24px; }
+    .header p { margin: 5px 0; font-size: 14px; }
+    .footer { 
+        background-color: #1a3c34; 
+        color: #fff; 
+        padding: 15px; 
+        text-align: center; 
+    }
+    .footer-text { 
+        margin: 0; 
+        font-size: 14px; 
+    }
+    .print-btn {
+        display: block;
+        margin: 20px auto;
+        padding: 10px 20px;
+        background-color: #1a3c34;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .print-btn:hover {
+        background-color: #f4a261;
+    }
+
+    @media print {
+        body { margin: 0; padding: 0; background: none; }
+        * { visibility: hidden; }
+        #invoice-print, #invoice-print * { 
+            visibility: visible; 
+        }
+        #invoice-print { 
+            position: absolute; 
+            left: 0; 
+            top: 0; 
+            width: 100%; 
+            max-width: 900px; 
+            margin: 0; 
+            padding: 20px; 
+            box-sizing: border-box; 
+            border: 2px solid #1a3c34; 
+            font-size: 12pt; 
+            line-height: 1.2; 
+        }
+        .print-btn { display: none; }
+        .total { font-size: 14pt; margin-top: 10px; }
+        .calculation-table th, .calculation-table td { padding: 5px; }
+    }
+</style>
+
+<script>
+    function printInvoice() {
+        window.print();
+    }
+</script>
+{% endblock %}

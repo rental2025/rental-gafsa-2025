@@ -1,0 +1,156 @@
+body {
+    font-family: Arial, sans-serif;
+    direction: rtl;
+    text-align: right;
+    background-color: #f2f4f2;
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    background-color: #1a3c34;
+    color: #fff;
+    padding: 15px;
+    text-align: center;
+    border-bottom: 4px solid #f4a261;
+}
+
+.header img {
+    width: 100px;
+}
+
+.header h1 {
+    margin: 10px 0;
+    font-size: 24px;
+}
+
+.header p {
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.navbar {
+    background-color: #1a3c34;
+    padding: 10px;
+    text-align: center;
+    border-bottom: 2px solid #f4a261;
+}
+
+.nav-item {
+    color: #fff;
+    margin: 0 15px;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.nav-item:hover {
+    color: #f4a261;
+}
+
+.container {
+    max-width: 900px;
+    margin: 20px auto;
+    background-color: #fff;
+    border: 3px solid #1a3c34;
+    padding: 20px;
+    min-height: calc(100vh - 200px);
+}
+
+.footer {
+    background-color: #1a3c34;
+    color: #fff;
+    text-align: center;
+    padding: 10px;
+    border-top: 4px solid #f4a261;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #1a3c34;
+    padding: 6px 10px;
+    border-right: 5px solid #f4a261;
+    margin-bottom: 10px;
+}
+
+.calculation-table, .reservation-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.calculation-table th, .calculation-table td, .reservation-table th, .reservation-table td {
+    border: 1px solid #1a3c34;
+    padding: 8px;
+    text-align: right;
+}
+
+.calculation-table th, .reservation-table th {
+    background-color: #d9e0dc;
+    color: #1a3c34;
+}
+
+.total {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: left;
+    padding: 10px;
+    background-color: #d9e0dc;
+    border: 2px solid #1a3c34;
+    margin-top: 20px;
+}
+
+.ref-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.ref-table td {
+    border: 1px solid #1a3c34;
+    padding: 6px;
+    background-color: #e9ece9;
+}
+
+.details p {
+    margin: 5px 0;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #1a3c34;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.btn:hover {
+    background-color: #f4a261;
+    color: #fff;
+}
+
+.reservation-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.dashboard-content, .invoice-content, .confirm-reservation-content, .apply-discount-content, .trip-create-content, .transport-order-content, .login-content, .payment-confirmation-content {
+    padding: 20px;
+}

@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+
+{% block title %}تأكيد الدفع{% endblock %}
+
+{% block content %}
+<div class="payment-confirmation-content">
+    <h1>تأكيد الدفع</h1>
+    <form method="post">
+        {% csrf_token %}
+        <p>هل تريد تأكيد دفع الحجز {{ reservation.reference }} بقيمة {{ reservation.total_price|floatformat:2 }} دينار تونسي؟</p>
+        <button type="submit" class="btn">تأكيد الدفع</button>
+    </form>
+</div>
+{% endblock %}

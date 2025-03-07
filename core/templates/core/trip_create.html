@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+
+{% block title %}إنشاء رحلة{% endblock %}
+
+{% block content %}
+<div class="trip-create-content">
+    <h1>إنشاء رحلة لحجز {{ reservation.reference }}</h1>
+    <form method="post" class="reservation-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">إنشاء</button>
+    </form>
+</div>
+{% endblock %}

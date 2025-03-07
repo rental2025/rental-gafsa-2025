@@ -1,0 +1,52 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}حجز حافلة{% endblock %}
+
+{% block content %}
+<div class="reservation-content">
+    <h1>حجز حافلة</h1>
+    <form method="post" id="reservationForm" class="reservation-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="{{ form.client.id_for_label }}">الحريف:</label>
+            {{ form.client }}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.destination.id_for_label }}">الوجهة:</label>
+            {{ form.destination }}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.start_date.id_for_label }}">تاريخ الذهاب:</label>
+            {{ form.start_date }}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.end_date.id_for_label }}">تاريخ العودة:</label>
+            {{ form.end_date }}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.discount.id_for_label }}">الخصم (%):</label>
+            {{ form.discount }}
+        </div>
+        <button type="submit" class="btn">عرض الفاتورة</button>
+    </form>
+    <div id="calendar"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'ar',
+        events: '/calendar/events/',
+        selectable: true,
+        select: function(info) {
+            document.getElementById('id_start_date').value = info.startStr;
+            document.getElementById('id_end_date').value = info.endStr.split('T')[0];
+        }
+    });
+    calendar.render();
+});
+</script>
+{% endblock %}

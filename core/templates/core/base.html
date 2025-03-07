@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <title>{% if not hide_title %}{% block title %}SRTG - Location Bus{% endblock %}{% endif %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/ar.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <img src="{% static 'images/srtg_logo.png' %}" alt="Logo SRTG">
+        <h1>الشركة الجهوية للنقل بقفصة</h1>
+        <p>المقر الاجتماعي: شارع الحبيب بورقيبة - قفصة</p>
+    </div>
+    
+    {% if not hide_nav %}
+    <div class="navbar">
+        {% if user.is_authenticated %}
+        <span class="nav-item">مرحبا، {{ user.username }} ({{ user.role }})</span>
+        <a href="{% url 'dashboard' %}" class="nav-item">لوحة التحكم</a>
+        {% if user.role == 'Superviseur' or user.role == 'Exploitant' %}
+        <a href="{% url 'reservation_create' %}" class="nav-item">إنشاء حجز</a>
+        {% endif %}
+        <a href="{% url 'logout' %}" class="nav-item">تسجيل الخروج</a>
+        {% else %}
+        <a href="{% url 'login' %}" class="nav-item">تسجيل الدخول</a>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+    
+    <div class="footer">
+        <p>الشركة الجهوية للنقل بقفصة © 2025 | هاتف: 1234-5678 | بريد إلكتروني: contact@srtg.tn</p>
+    </div>
+</body>
+</html>

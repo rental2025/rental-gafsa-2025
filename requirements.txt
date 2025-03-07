@@ -1,0 +1,8 @@
+asgiref==3.7.2           # Requis par Django
+Django==4.2.7            # Version stable de Django (ajuste selon ta version actuelle)
+dj-database-url==2.1.0   # Pour gérer les bases de données sur Heroku
+gunicorn==22.0.0         # Serveur WSGI pour la production
+psycopg2-binary==2.9.9   # Adaptateur PostgreSQL pour Heroku
+sqlparse==0.4.4          # Requis par Django
+typing_extensions==4.8.0 # Requis par certaines dépendances
+whitenoise==6.6.0        # Pour servir les fichiers statiques en production (optionnel mais recommandé)

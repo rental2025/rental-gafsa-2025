@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+
+{% block title %}إضافة خصم{% endblock %}
+
+{% block content %}
+<div class="apply-discount-content">
+    <h1>إضافة خصم</h1>
+    <form method="post" class="reservation-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn">تطبيق الخصم</button>
+    </form>
+</div>
+{% endblock %}
