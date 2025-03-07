@@ -8,12 +8,22 @@ from django.db.models import Count
 from django.http import HttpResponse
 from django.core.management import call_command
 import os
+from django.contrib.auth.models import User
 
 def run_migrations_and_superuser(request):
     # Exécute les migrations
     call_command('migrate')
-    # Crée un superutilisateur (ajuste les valeurs)
-    call_command('createsuperuser', '--noinput', username='souheil', email='souheil@example.com', password='ton_mot_de_passe')
+    
+    # Crée un superutilisateur programmatiquement
+    try:
+        User.objects.get(username='souheil')
+    except User.DoesNotExist:
+        User.objects.create_superuser(
+            username='souheil',
+            email='souheil@example.com',
+            password='ton_mot_de_passe'  # Remplace par un vrai mot de passe sécurisé
+        )
+    
     return HttpResponse("Migrations et superutilisateur créés !")
 
 def reservation_create(request):
